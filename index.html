@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=640">
+<style>
+* {
+  margin:0px;
+  padding:0px;
+  border-width:0px;
+}
+
+body {
+  min-height:640px;
+  min-width:640px;
+}
+
+#container,#shadow,#image,#far,#medium,#near {
+  position:absolute;
+  left:0;right:0;top:0;bottom:0;
+  margin:auto;
+}
+
+#container {
+  width:620px;
+  height:620px;
+}
+
+#shadow {
+  width:600px;
+  height:600px;
+}
+
+#image,#far,#medium,#near {
+  width:480px;
+  height:480px;
+  background-repeat:no-repeat;
+  background-position:50% 70%;
+  -webkit-transition:all 1s linear;
+}
+
+#far {
+  background-image:url(1.png);
+  z-order:10;
+}
+#medium {
+  background-image:url(2.png);
+  z-order:11;
+}
+#near {
+  background-image:url(3.png);
+  z-order:12;
+}
+
+.focused { opacity:1.0; }
+.unfocused { opacity:0.0; }
+
+.sel {
+  border-width:0px;
+  position:absolute;
+  background-color:transparent;
+  z-order:15;
+}
+
+</style>
+<script type="text/javascript">
+function onLoad(){
+ window.far=document.getElementById('far');
+ window.medium=document.getElementById('medium');
+ window.img3=document.getElementById('near');
+}
+function far_onClick(){
+  img3.className="unfocused";
+  medium.className="unfocused";
+  far.className="focused";
+}
+function medium_onClick(){
+  img3.className="unfocused";
+  medium.className="focused";
+  far.className="focused";
+}
+function near_onClick(){
+  img3.className="focused";
+  medium.className="focused";
+  far.className="focused";
+}
+</script>
+
+</head>
+<body onload="onLoad();">
+<div id="container">
+<div id="shadow">
+<div id="image">
+<div id="far" class="focused">
+</div>
+<div id="medium" class="unfocused">
+</div>
+<div id="near" class="unfocused">
+</div>
+<div id="sel-far" class="sel" style="left:0;top:0;width:480px;height:240px;z-order:100;" onclick="far_onClick();">
+</div>
+<div id="sel-medium" class="sel" style="left:0;top:240px;width:480px;height:240px;z-order:110;" onclick="medium_onClick();">
+</div>
+<div id="sel-near" class="sel" style="left:200px;top:300px;width:140px;height:160px;z-order:120;" onclick="near_onClick();">
+</div>
+</div>
+</div>
+</div>

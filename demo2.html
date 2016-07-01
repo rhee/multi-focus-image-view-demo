@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=640, user-scalable=yes">
+<!--<link rel="stylesheet" href="fs.css" />-->
+<style>
+
+body { min-height:640px; min-width:640px; }
+
+#imggroup {
+  position:absolute;
+  left:0;right:0;top:0;bottom:0;
+  margin:auto;padding:0;border-width:0;
+}
+
+/* /////////////////////////////////////////// */
+
+.ii {
+  position:absolute;
+  width:100%;height:100%;
+  margin:0;
+  background-repeat:no-repeat;
+  background-position:50% 70%;
+  -webkit-transition:opacity 1s linear;
+}
+
+/* attributes */
+.focused { opacity:1.0; }
+.unfocused { opacity:0.0; }
+
+/* /////////////////////////////////////////// */
+
+/* selection area */
+.sel {
+  position:absolute;
+  border-width:0px;
+  background-color:transparent;
+}
+
+/* /////////////////////////////////////////// */
+
+/* rumoured that class switching not works for
+   transtions */
+
+#cc,#cc * {
+  position:absolute;
+  display:block;
+  border:5px solid yellow;
+  -webkit-transition-property: opacity,-webkit-transform;
+  -webkit-transition-duration:0.5s;
+  -webkit-transition-timing-function:ease;
+}
+
+.cc-fade {
+  opacity:0;
+  -webkit-transform:scale3d(0.5,0.5,1.0);
+}
+
+.ci {
+  width:75%;height:75%;
+  left:0;right:0;top:0;bottom:0;
+  margin:auto;
+}
+
+</style>
+<!--<script type="text/javascript" src="fs.js">
+</script>-->
+<script>
+var MFZ=function(el){
+  var _=this;
+  _.el=el;
+  _.ox=-(0|parseInt(el.style.width)/2);
+  _.oy=-(0|parseInt(el.style.height)/2);
+  _.end(0);
+};
+MFZ.prototype.handleEvent=function(event){
+  var _=this,el=event.target;
+  if('webkitTransitionEnd'==event.type&&el==_.el){
+    _.end(0);
+  }
+};
+MFZ.prototype.start=function(x,y,t,s){
+  var _=this,el=_.el,xx=x+_.ox,yy=y+_.oy;
+  console.log('MFZ.start '+[x,y,t,s,'=>',xx,yy].join(' '));
+  //show, fade-out
+  el.style.left=xx+'px';
+  el.style.top=yy+'px';
+  el.addEventListener('webkitTransitionEnd',_,true);
+  el.className='cc-fade';
+};
+MFZ.prototype.end=function(t){
+  console.log('MFZ.end('+t+')');
+  var _=this,el=_.el;
+  el.removeEventListener('webKitTransitionEnd',_,true);
+  //moving the div out of the container
+  //(changing style.display or style.zOrder not works as expected)
+  el.style.left=-1000+'px';
+  el.style.top=-1000+'px';
+  el.className='';
+}
+
+var MFV=function(el){
+    var _=this,i,j,o,l,n,r=/url\((.*)\)/i;
+    _.el=el;
+    _.ic=[];//image cache
+    _.fm={};//focus map ( element to level )
+    _.ii=document.querySelectorAll('.ii');//div array
+    for(i=0;i<_.ii.length;i++){
+      //console.log('processing '+_.ii[i].id+'.'+_.ii[i].className);
+      //preload
+      _.ic.unshift(new Image());
+      _.ic[0].src=r.exec(_.ii[i].style.backgroundImage)[1];//get url
+      //console.log('src='+_.ic[0].src);
+      //selection area
+      l=document.querySelectorAll('.sel-'+_.ii[i].id);
+      for(j=0;j<l.length;j++){
+        var n=l[j];
+        n.addEventListener('click',_,true);
+        _.fm[n.id]=i;
+        //console.log('listener '+n.id+'.'+n.className+' '+i);
+      }
+    }
+    //cursor div
+    _.cc=new MFZ(document.getElementById('cc'));
+    _.set_focus_level(0);
+};
+MFV.prototype.handleEvent=function(event){
+  var _=this;
+  var el=event.target;
+  if('click'==event.type){
+    console.log('click '+el.id+'.'+el.className+' '+[el.offsetLeft,el.offsetTop,event.offsetX,event.offsetY].join(' '));
+    var x=el.offsetLeft+event.offsetX;
+    var y=el.offsetTop+event.offsetY;
+    _.cc.start(x,y,0.5,0.5);
+    _.set_focus_level(_.fm[el.id]);
+  }
+};
+MFV.prototype.set_focus_level=function(n){
+  console.log('focus '+n);
+  var _=this,i;
+  for(i=_.ii.length-1;i>n;i--){
+    if(_.ii[i].className!='ii unfocused')
+      _.ii[i].className='ii unfocused';
+    //console.log(''+i+' '+_.ii[i].className);
+  }
+  for(i=n;i>=0;i--){
+    if(_.ii[i].className!='ii focused')
+      _.ii[i].className='ii focused';
+    //console.log(''+i+' '+_.ii[i].className);
+  }
+};
+
+function onLoad(){
+  window.multiFocus=new MFV(
+    document.getElementById('imggroup'));
+}
+</script>
+</head>
+<body onload="onLoad()">
+<div id="imggroup" style="width:480px;height:480px;">
+<!-- sample images from http://www.lytro.com/picture_gallery -->
+<div id="img1" class="ii unfocused"
+  style="background-image:url(1.png);z-order:100;">
+</div>
+<div id="img2" class="ii unfocused"
+  style="background-image:url(2.png);z-order:110;">
+</div>
+<div id="img3" class="ii unfocused"
+  style="background-image:url(3.png);z-order:120;">
+</div>
+<div id="cc" class="" style="width:100px;height:100px;z-order:1000">
+  <div class="ci"></div>
+</div>
+<div id='sel1' class="sel sel-img1"
+  style="left:0;top:0;width:480px;height:240px;z-order:3000">
+</div>
+<div id='sel2' class="sel sel-img2"
+  style="left:0;top:240px;width:480px;height:240px;z-order:3010">
+</div>
+<div id='sel3' class="sel sel-img3"
+  style="left:200px;top:300px;width:140px;height:160px;z-order:3020">
+</div>
+</div>
